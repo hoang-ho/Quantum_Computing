@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{physics}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\begin{document}
+\begin{center}
+\textbf{WEEK 2 REPORT}
+\end{center}
+
+In later of week 1 and week 2, I have spent time catching up with other members in the group. Most of my time is devoted to reading and trying to understand papers "Quantum Machine Learning" and "Quantum Algorithm Implementations for Beginners". I also do some self-learning on quantum mechanics and quantum logic gates. \textbf{Below is a summary of what I have learned}: \\
+
+\textbf{Quantum Machine Learning} paper \\
+
+The field of quantum machine learning explores how to devise and implement quantum software that could enable machine learning that is faster than that of classical computers. Quantum mechanics is well known to produce atypical patterns in data. If a small quantum information processors can produce statistical patterns that are computationally difficult for a classical computer to produce, then perhaps they can also recognize patterns that are equally difficult to recognize classically. A quantum algorithm is a set of instructions solving a problem that can be performed on a quantum computer. Quantum Machine Learning makes use of quantum algorithms as part of a larger implementation. By analyzing the steps that quantum algorithms prescribe, it becomes clear that they have the potential to outperform classical algorithms for specific problems. This potential is known as quantum speedup. Accordingly, quantum speedups in machine learning are currently characterized using idealized measures from complexity theory: query complexity and gate complexity. Query complexity measures the number of queries to the information source for the classical or quantum algorithm. A quantum speedup results if the number of queries needed to solve a problem is lower for quantum algorithms than for the classical algorithm. To determine the gate complexity, the number of elementary quantum operations (or gates) required to obtain the desired result are counted. \\
+
+The paper then goes over several cases of Quantum Machine Learning algorithms, such as HHL algorithms, quantum PCA algorithms, quantum Support Vector Machine algorithms, qBLAS optimization, quantum Boltzmann machine. It would be hard to summarize everything here. In general, I learned some new quantum mechanics terms: 
+
+\textbf{Thermalization}: Two physical systems are in thermal equilibrium if there are no net flow of thermal energy between them when they are connected by a path permeable to heat. Thermal equilibrium obeys the zeroth law of thermodynamics. A system is said to be in thermal equilibrium with itself if the temperature within the system is spatially and temporally uniform. \\
+
+In quantum physics, \textbf{quantum fluctuation} is the temporary change in the amount of energy in a point in space, as allowed by the uncertainty principle. The uncertainty principle states that for a pair of conjugate variables such as position/momentum or energy/time, it is impossible to have a precisely determined value of each member of the pair at the same time. A quantum fluctuation is the temporary appearance of energetic particles out of empty space. \\
+
+\textbf{Quantum tunneling} is the quantum mechanical phenomenon where a particle tunnels through a barrier that it classically cannot surmount.Quantum tunneling falls under the domain of quantum mechanics: the study of what happens at the quantum scale. This process cannot be directly perceived, but much of its understanding is shaped by the microscopic world, which classical mechanics cannot adequately explain. To understand the phenomenon, particles attempting to travel between potential barriers can be compared to a ball trying to roll over a hill; quantum mechanics and classical mechanics differ in their treatment of this scenario. Classical mechanics predicts that particles that do not have enough energy to classically surmount a barrier will not be able to reach the other side. Thus, a ball without sufficient energy to surmount the hill would roll back down. Or, lacking the energy to penetrate a wall, it would bounce back (reflection) or in the extreme case, bury itself inside the wall (absorption). In quantum mechanics, these particles can, with a very small probability, tunnel to the other side, thus crossing the barrier. Here, the "ball" could, in a sense, borrow energy from its surroundings to tunnel through the wall or "roll over the hill", paying it back by making the reflected electrons more energetic than they otherwise would have been. The reason for this difference comes from the treatment of matter in quantum mechanics as having properties of waves and particles. One interpretation of this duality involves the Heisenberg uncertainty principle, which defines a limit on how precisely the position and the momentum of a particle can be known at the same time. This implies that there are no solutions with a probability of exactly zero (or one), though a solution may approach infinity if, for example, the calculation for its position was taken as a probability of 1, the other, i.e. its speed, would have to be infinity. Hence, the probability of a given particle's existence on the opposite side of an intervening barrier is non-zero, and such particles will appear on the `other' (a semantically difficult word in this instance) side with a relative frequency proportional to this probability. \\ 
+
+\textbf{Quantum Logic Gates} \\
+
+Loosely speaking, any problem that can be simulated classically can also be simulated quantum mechanically. However, the new features of the quantum computer - superposition, interference between qubits, entanglement, and measurement - allow quantum computers to solve certain problems, like factoring and database search problems, exponentially faster than can be done on any classical computer. Superposition refers to the fact that before measurement, each qubit is indeed in both basis states simultaneously with probability proportional to the amplitude of the prefactor. Entanglement is a type of correlation that has no classical analog. For example, when two spinning particles are entangled, their spins are correlated not only in one direction but in all directions. Because it has no classical analog, entanglement is an effect that is not easily simulated classically and hence is an effect that could create a quantum advantage (i.e. where quantum computers perform better than classical computer). \\
+
+A set of \textbf{Universal quantum gates} is any set of gates to which any operation possible on a quantum computer can be reduced, that is, any other unitary operation can be expressed as a finite sequence of gates from the set. A set of gates that together can execute all possible quantum computations is called a universal gate set. The set {H, T, CNOT} forms a universal set. Also, the Toffoli gate by itself is universal. \\
+
+A universal three-bit gate is the Toffoli's gate: it applies a NOT to the third bit if the first two bits are in $\langle 11 \rangle$, but otherwise have no effect. \\
+
+The Deutsch gate operates on three qubit at a time and is universal for quantum logic: any arbitrary unitary transform on an arbitrary number of qubits can be simulated by repeated applications of D($\alpha$) on three qubits at a time. $D(\pi/2) = T_3$. Deutsch gate is not elementary and can be further decomposed into two-qubit gates. Even though three-bit Toffoli gate, a special case of Deutsch gate, cannot be constructed from two-bit XOR gates, it can be indeed simulated quantum mechanically using only two - qubit gates: the quantum features of complex coefficients and superposition states enabled the quantum decomposition of the three-bit Toffoli gate while a purely classical decomposition is not possible. Read reference for more detail. A general way of writing a 2-dimensional unitary matrix, except for an overall phase factor, is: \\
+
+$y(\lambda, \nu, \phi) = \left(\begin{matrix} \cos(\lambda) & e^{-\imath\nu}\sin(\lambda) \\
+e^{\imath(\phi - \nu)}\sin(\lambda) & e^{\imath\phi}\cos(\lambda) \end{matrix} \right)$ \\
+
+y has the property of being able to map an arbitrary qubit state to the eigenstate $\ket{1}$ (read reference for more detail). Since y is unitary and reversible, it follows from this any state of the qubit can be taken to any other using y, establishing the sufficiency of y for all single - qubit unitary operations. 
+
+\textbf{Others}
+Apart from what I have summarized above, I have also learned how Grover's search and HHL algorithms work from our group meeting and my own self - learning. Later in week 2, I have spent some time reading Quantum Support Vector Machine algorithm, \href{https://arxiv.org/abs/1307.0471}{Quantum Support Vector Machine}. I intend to give a presentation on this algorithm this week meeting. 
+\end{document}

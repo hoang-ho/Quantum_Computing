@@ -1,0 +1,265 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\usepackage{physics}
+\usepackage[margin=1.2in]{geometry}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{{c:/Users/Hoang/Documents/document/computer science/quantum machine learning/weekly report/}}
+\begin{document}
+\begin{center}
+\textbf{\Large Week 6 Report}
+\end{center}
+
+In the past week, I have worked on some important quantum algorithms and subroutines, as well as, understanding quantum gates and their implementation IBM QX. \\
+
+\textbf{\large Quantum Fourier Transform}
+\begin{equation}
+QFT_{N} = \frac{1}{\sqrt{N}} *
+\begin{pmatrix}
+1 & 1 & 1 &\dots & 1 \\
+1 & \omega & {\omega}^{2} & \dots &{\omega}^{N-1} \\
+1 & {\omega}^{2} & {\omega}^{4} & \dots & {\omega}^{2(N-1)} \\
+\vdots & \ddots & \\
+1 & {\omega}^{N-1} & {\omega}^{2(N-1)} & \dots & {\omega}^{(N-1)^{2}} 
+\end{pmatrix}
+\end{equation}
+
+where $\omega = e^{\frac{2\pi i}{N}} = \cos \frac{2\pi}{N} + i \sin \frac{2 \pi}{N}$ and $N = 2^n$ \\
+
+$\omega \text{ is } N^{th}$ root of unity. For example, N = 12
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale = 1]{"nth roots of unity".png}
+    \caption{Roots of Unity}
+    \label{fig: roots of unity}
+\end{figure}
+
+\begin{equation}
+\frac{1}{\sqrt{N}} *
+\begin{pmatrix}
+1 & 1 & 1 &\dots & 1 \\
+1 & \omega & {\omega}^{2} & \dots &{\omega}^{N-1} \\
+1 & {\omega}^{2} & {\omega}^{4} & \dots & {\omega}^{2(N-1)} \\
+\vdots & \ddots & \\
+1 & {\omega}^{N-1} & {\omega}^{2(N-1)} & \dots & {\omega}^{(N-1)^{2}}
+\end{pmatrix}
+* 
+\begin{pmatrix}
+\alpha_{0} \\
+\alpha_{1} \\
+\alpha_{2} \\
+\vdots \\
+\alpha_{N-1}
+\end{pmatrix}
+= 
+\begin{pmatrix}
+\beta_{0} \\
+\beta_{1} \\
+\beta_{2} \\
+\vdots \\
+\alpha_{N-1}
+\end{pmatrix}
+\end{equation}
+
+Definition: 
+ 
+$$\sum_{j = 0}^{N-1} \alpha_{j} \ket{j} \xrightarrow[\text{}]{\text{QFT}_{N}} \sum_{k = 0}^{N-1} \beta_{k} \ket{k} $$ 
+
+where: $\beta_{k} = \frac{1}{\sqrt{N}} \sum_{j=0}^{N-1} \alpha_{j} {\omega}^{jk} = \frac{1}{\sqrt{N}} \sum_{j=0}^{N-1} \alpha_{j} e^{\frac{2 \pi ijk}{N}} $ \\
+
+In case that x is a basis state, we have that: 
+
+$$\ket{x} \xrightarrow[\text{}]{\text{QFT}_{N}} \frac{1}{\sqrt{N}} \sum_{k = 0}^{N-1} {\omega}^{xk} \ket{k} = \frac{1}{\sqrt{N}} \sum_{k = 0}^{N-1} e^{\frac{2 \pi ijk}{N}} \ket{k}$$
+
+More generally, we can use the binary representation of $j = j_{1}j_{2}\dots j_{n}$, or more formally $j = j_{1}2^{n-1} + j_{2} 2^{n-2} + \dots + j_{n}2^{0}$. Now, we have that:
+\begin{equation}
+\begin{split}
+\ket{j} &\xrightarrow[\text{}]{\text{QFT}} \frac{1}{2^{n/2}} \sum_{k=0}^{2^{n} - 1} e^{\frac{2 \pi ijk}{2^{n}}} \ket{k} \\
+&= \frac{1}{2^{n/2}} \sum_{k_{1} = 0}^{1} \dots \sum_{k_{n} = 0}^{1} e^{2 \pi ij (\sum_{l = 1}^{n} k_{l} 2^{-l})} \ket{k_{1} \dots k_{n}} \\
+&= \frac{1}{2^{n/2}} \sum_{k_{1} = 0}^{1} \dots \sum_{k_{n} = 0}^{1} \bigotimes_{l = 1}^{n} e ^{2 \pi ij k_{l} 2^{-l}} \ket{k_{l}} \\
+&=  \frac{1}{2^{n/2}} \bigotimes_{l=1}^{n} \big[ \sum_{k_{l}=0}^{1} e^{2 \pi ij k_{l} 2 ^{-l}} \ket{k_{l}} \big] \\
+&= \frac{1}{2^{n/2}} \bigotimes_{l=1}^{n} \big[ \ket{0} + e^{2 \pi ij2 ^{-l}} \ket{1} \big] \\
+&= \frac{(\ket{0} + e^{2 \pi i 0.j_{n}} \ket{1}) \otimes (\ket{0} + e^{2 \pi i 0.j_{n-1}j_{n}} \ket{1}) \otimes \dots \otimes (\ket{0} + e^{2 \pi i 0.j_{1}j_{2} \dots j_{n}} \ket{1})}{2^{n/2}}
+\end{split}
+\end{equation}
+
+The product representation (3) makes it easy to derive an efficient circuit for the quantum Fourier transform. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale = 0.4]{"quantum fourier transform".png}
+    \caption{Quantum Fourier Transform circuit}
+    \label{fig: Quantum Fourier Transform circuit}
+\end{figure}
+
+where $R_{k}$ denotes the unitary transformation:
+
+\[
+R_{k} = 
+\begin{pmatrix}
+1 & 0 \\
+0 & e^{\frac{2 \pi i}{2^k}}
+\end{pmatrix}
+\]
+
+$R_{k}$ leaves the basis state $\ket{0}$ unchanged and map $\ket{1} \text{ to } e^{\frac{2 \pi i}{2^k}} \ket{1}$
+
+Input state $\ket{j_{1} j_{2} \dots j_{n}}$
+\begin{itemize}
+\item Apply the hadamard gate to the first bit produces the state: 
+$$
+\frac{1}{\sqrt{2}}(\ket{0} + e^{2 \pi i 0.j_{1}} \ket{1}) \ket{j_{2} \dots j_{n}}
+$$
+\item Apply the controlled $R_{2}$ gate produces the state: 
+$$
+\frac{1}{\sqrt{2}}(\ket{0} + e^{2 \pi i 0.j_{1}j_{2}} \ket{1}) \ket{j_{2} \dots j_{n}}
+$$
+\item We continue applying controlled -  $R_{3}$, $R_{4}$ through $R_{n}$ gates, each of which adds an extra bit the the phase of the co-efficient of the first $\ket{1}$. At the end of the procedure, we have the state
+$$
+\frac{1}{\sqrt{2}}(\ket{0} + e^{2 \pi i 0.j_{1}j_{2} \dots j_{n}} \ket{1}) \ket{j_{2} \dots j_{n}}
+$$
+
+\item We perform a similar procedure on the second qubit. The Hadamard gate put us in the state:
+$$
+\frac{1}{2}(\ket{0} + e^{2 \pi i 0.j_{1}j_{2} \dots j_{n}} \ket{1})(\ket{0} + e^{2 \pi 0.j_{2}} \ket{1}) \ket{j_{3} \dots j_{n}}
+$$
+\item The controlled - $R_{2} \text{ through } R_{n-1}$ gates yields the state:
+$$
+\frac{1}{2}(\ket{0} + e^{2 \pi i 0.j_{1}j_{2} \dots j_{n}} \ket{1})(\ket{0} + e^{2 \pi 0.j_{2} \dots j_{n}} \ket{1}) \ket{j_{3} \dots j_{n}}
+$$
+\item We continue in this fashion for each qubit, giving a final state:
+$$
+\frac{(\ket{0} + e^{2 \pi i 0.j_{n}} \ket{1})(\ket{0} + e^{2 \pi i 0.j_{n-1}j_{n}} \ket{1}) \dots (\ket{0} + e^{2 \pi i 0.j_{1}j_{2} \dots j_{n}} \ket{1})}{2^{n/2}}
+$$
+\end{itemize}
+
+\textbf{Computational Cost for QFT}
+\begin{itemize}
+\item For the first qubit, we use a Hadamard gate and n-1 controlled - $R_{k}$ gates
+\item For the second qubit, we use a Hadamard gate and n-2 controlled - $R_{k}$ gates
+\item Hence, in total, we use $n + (n-1) + (n-2) + \dots + 1 = \frac{n(n-1)}{2}$ gates
+\item Cost of QFT is $O(n^2)$
+\item Classical FFT costs $O(n2^n)$
+\end{itemize}
+
+\textbf{\large Quantum Phase Estimation} \\
+
+The problem that Quantum Phase Estimation is trying to solve is that: Suppose a unitary operator U has an eigenvector $\ket{u}$ with eigenvalue $e^{2 \pi i \varphi}$, where $0 < \varphi < 1 \text{ and } \varphi$ is unknown, we would like to know what is the eigenvalues corresponding to $\ket{u}$. Hence, the output of the algorithm would be  $\widetilde{\varphi}$ approximation of $\varphi$. To perform the estimation we assume that we have available black boxes (oracles) capable of preparing the state $\ket{u}$ and performing the controlled - $U^{2^{j}}$ operation (j non negative). The use of black boxes indicates that the phase estimation procedure is not a complete quantum algorithm in its own right. Rather, phase estimation is a kind of `subroutine' that, when combined with other subroutines, can be used to perform interesting computational tasks. 
+
+Let's assume that $\varphi$ can be expressed in exactly n - bit binary fraction (we will come to the case when $\varphi$ is not later). So we have that:
+$$
+\varphi = 0.x_{1}x_{2} \dots x_{n} = \sum_{i=1}^{n} \frac{x_{i}}{2^{i}}
+$$
+For k $\in \{0, 1, \dots, n-1\}$ we have:
+$$
+2^{k} \varphi = x_{1}x_{2} \dots x_{k}.x_{k+1} \dots x_{n}
+$$
+\begin{equation}
+\begin{split}
+e^{2 \pi i 2^{k} \varphi} &= e^{2 \pi i (x_{1}x_{2} \dots x_{k}.x_{k+1} \dots x_{n}}) \\
+&= e^{2 \pi i (x_{1}x_{2} \dots x_{k} + 0.x_{k+1} \dots x_{n})} \\
+&= e^{2 \pi i (x_{1}x_{2} \dots x_{k})} *  e^{2 \pi i (0.x_{k+1} \dots x_{n})} \\
+&= e^{2 \pi i (0.x_{k+1} \dots x_{n})}
+\end{split}
+\end{equation}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale = 0.5]{"quantum phase estimation 1".jpg}
+    \caption{Quantum Phase Estimation circuit}
+    \label{fig: Quantum Phase Estimation circuit}
+\end{figure}
+
+Know that: $U\ket{u} = e^{2 \pi i \varphi} \ket{u}$ so $U^{2^{j}} \ket{u} = e^{2 \pi 2^{j} \varphi} \ket{u}$. Thus:
+$$
+\frac{1}{\sqrt{2}}(\ket{0} + \ket{1})\ket{u} \xrightarrow[\text{}]{\text{U}^{2^{j}}} \frac{1}{\sqrt{2}}(\ket{0} +  e^{2 \pi 2^{j} \varphi} \ket{1}) \ket{u}
+$$
+Therefore, after applying the Hadamard gate and the controlled - $U^{2^{n-1}}$ on the first qubit, we have:
+$$
+\frac{\ket{0} + e^{2 \pi i 2^{n-1} \varphi} \ket{1}}{\sqrt{2}} = \frac{\ket{0} + e^{2 \pi i 0.x_{n}} \ket{1}}{\sqrt{2}}
+$$
+We obtain this result from the previous derivation. Repeat the same procedure for the second qubit, we obtain: 
+$$
+\frac{\ket{0} + e^{2 \pi i 2^{n-2} \varphi} \ket{1}}{\sqrt{2}} = \frac{\ket{0} + e^{2 \pi i 0.x_{n-1}x_{n}} \ket{1}}{\sqrt{2}}
+$$
+
+Therefore, we evaluate the output of the previous circuit:
+\begin{equation}
+\begin{split}
+&\frac{\ket{0} + e^{2 \pi i 2^{n-1} \varphi} \ket{1}}{\sqrt{2}} \otimes \frac{\ket{0} + e^{2 \pi i 2^{n-2} \varphi} \ket{1}}{\sqrt{2}} \otimes \dots \\
+&\otimes \frac{\ket{0} + e^{2 \pi i 2^{1} \varphi} \ket{1}}{\sqrt{2}}\otimes \frac{\ket{0} + e^{2 \pi i 2^{0} \varphi} \ket{1}}{\sqrt{2}} \\
+&= \frac{\ket{0} + e^{2 \pi i 0.x_{n}} \ket{1}}{\sqrt{2}} \otimes \frac{\ket{0} + e^{2 \pi i 0.x_{n-1}x_{n}} \ket{1}}{\sqrt{2}} \otimes \dots \\
+&\otimes \frac{\ket{0} + e^{2 \pi i 0.x_{1}x_{2} \dots x_{n}} \ket{1}}{\sqrt{2}}
+\end{split}
+\end{equation}
+This is exactly the Quantum Fourier Transform applied on $(\ket{x_n} \otimes \ket{x_n{n-1}} \otimes \dots \otimes \ket{x_{1}})$. To get the values of $x_{1}, x_{2}, \dots, x_{n}$, apply the inverse of Quantum Fourier Transform. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale = 0.6]{"inverse QFT".png}
+    \caption{Inverse QFT for 3 qubits}
+    \label{fig: Inverse QFT for 3 qubits}
+\end{figure}
+
+where:
+\[
+R_{k} = 
+\begin{pmatrix}
+1 & 0 \\
+0 & e^{\frac{2 \pi i}{2^k}}
+\end{pmatrix}
+\]
+
+\textbf{Summary}
+\begin{itemize}
+\item We use the Hadamard gate and controlled - $U^{2^{k}}$ to prepare the state:
+$$
+\frac{\ket{0} + e^{2 \pi i 0.x_{k+1}x_{k+2} \dots x_{n}} \ket{1}}{\sqrt{2}}
+$$
+\item Using the previously determined bits $x_{k+2}, x_{k+3}, \dots, x_{n}$ we change this state to:
+$$
+\frac{\ket{0} + e^{2 \pi i 0.x_{k+1}} \ket{1}}{\sqrt{2}} = \frac{\ket{0} + (-1)^{x_{k+1}} \ket{1}}{\sqrt{2}}
+$$
+\item Apply the Hadamard gate to obtain $\ket{x_{k+1}}$
+\item Intuition: The controlled phase shifts enable us to reduce the problem of determining each bit to distinguishing between $\ket{+} \text{ and } \ket{-}$
+\end{itemize}
+
+When $\varphi$ is abitrary and can be not an exact n-bit binary fraction. \\
+
+\textbf{Lemma}: \\
+
+Let $x = \sum_{i = 1}^{n} x_{i} 2^{n-i} \text{ and } \varphi_{x} = 0.x_{1}x_{2} \dots x_{n} = \frac{x}{2^{n}}$ be the corresponding bit fraction. For x be such that:
+
+$$ \frac{x}{2^n} \leq \varphi \leq \frac{x+1}{2^n}$$
+
+Then, the probability of return one of the two closest bit fraction is at least $\frac{8}{\pi^{2}}$ with error less than $\frac{1}{2^{n}}$, i.e., $Pr(\vert \varphi_{x} - \varphi \vert < \frac{1}{2^{n}}) \geq \frac{8}{\pi^{2}}$
+
+\textbf{\large Others} \\
+
+Apart from what is represented on Quantum Fourier Transform and Quantum Phase Estimation, I have gone over the algorithm for finding period with Quantum Phase Estimation via \href{https://www.youtube.com/watch?v=crMM0tCboZU&index=44&list=PL2jykFOD1AWap0r8WOuZ-08BFgMyx-5RT&t=0s}{Quantum Factoring Period Finding video}, as well as, the Shor Algorithms via \href{https://www.youtube.com/watch?v=YhjKWAMFBUU&index=44&list=PL2jykFOD1AWap0r8WOuZ-08BFgMyx-5RT}{Quantum Shor's Factoring Algorithm video}. But I don't have enough of time to sumarize everything for the presentation. Other than learning quantum algorithms, I also spend time working with IBM QX: basically, building a circuit for quantum SVM is a hard problem because qSVM consists of so many components and so many complex gates, which are not available on IBM QX. Hence, what I was doing is just trying to understand quantum gates and trying to implement more complex quantum gates and subroutines needed to implement QSVM on IBM QX. 
+
+\medbreak
+
+\begin{thebibliography}{9}
+\bibitem{QCQI}
+Michael Nielsen, Isaac L. Chuang. 
+\href{http://www-reynal.ensea.fr/docs/iq/QC10th.pdf}{\textit{Quantum Computing and Quantum Information}}
+
+\bibitem{QMQC}
+Umesh Vazirani. 
+\href{https://www.youtube.com/watch?v=BM429cOogYc&list=PL2jykFOD1AWap0r8WOuZ-08BFgMyx-5RT&index=38}{Quantum Fourier Transform}
+
+
+\end{thebibliography}
+
+\end{document}

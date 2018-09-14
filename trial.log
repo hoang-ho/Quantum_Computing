@@ -1,0 +1,16 @@
+2018-07-25 10:40:29,984:INFO:Running with trainning examples: [[-0.43681163, 0.899553], [-0.62909894, -0.77732524], [-0.08956222, -0.99598123], [0.85829497, 0.51315664]] and test examples [-0.62909894, -0.77732524]
+2018-07-25 10:40:29,985:INFO:Test label class: 0
+2018-07-25 10:40:30,055:INFO:pre-mapping properties: {'size': 234, 'depth': 162, 'width': 5, 'bits': 5, 'factors': 1, 'operations': {'u2': 20, 'cx': 105, 'u3': 47, 'u1': 56, 'barrier': 1, 'measure': 5}}
+2018-07-25 10:40:30,056:INFO:initial layout: {('q0', 0): ('q', 0), ('q0', 1): ('q', 1), ('q0', 2): ('q', 15), ('q0', 3): ('q', 2), ('q0', 4): ('q', 14)}
+2018-07-25 10:40:31,478:INFO:final layout: {('q0', 0): ('q', 0), ('q0', 1): ('q', 1), ('q0', 2): ('q', 15), ('q0', 3): ('q', 2), ('q0', 4): ('q', 14)}
+2018-07-25 10:40:33,265:INFO:post-mapping properties: {'size': 491, 'depth': 311, 'width': 16, 'bits': 5, 'factors': 12, 'operations': {'u2': 198, 'cx': 192, 'u3': 79, 'u1': 16, 'barrier': 1, 'measure': 5}}
+2018-07-25 10:44:45,839:INFO:Running with trainning examples: [[-0.60266703, 0.79799276], [0.9458215, -0.32468706]] and test examples [-0.04172742, 0.99912903]
+2018-07-25 10:44:45,839:INFO:Test label class: 0
+2018-07-25 10:47:50,604:INFO:Running with trainning examples: [[-0.43681163, 0.899553], [0.85829497, 0.51315664]] and test examples [-0.04172742, 0.99912903]
+2018-07-25 10:47:50,605:INFO:Test label class: 0
+2018-07-25 10:53:41,044:INFO:Running with trainning examples: [[-0.43681163, 0.899553], [0.85829497, 0.51315664]] and test examples [-0.04172742, 0.99912903]
+2018-07-25 10:53:41,045:INFO:Test label class: 0
+2018-07-25 11:00:07,034:INFO:Running with trainning examples: [[-0.43681163, 0.899553], [-0.62909894, -0.77732524], [-0.08956222, -0.99598123], [0.85829497, 0.51315664]] and test examples [-0.62909894, -0.77732524]
+2018-07-25 11:00:07,035:INFO:Test label class: 0
+2018-07-25 11:01:16,815:INFO:Running with trainning examples: [[-0.43681163, 0.899553], [-0.62909894, -0.77732524], [-0.08956222, -0.99598123], [0.85829497, 0.51315664]] and test examples [-0.62909894, -0.77732524]
+2018-07-25 11:01:16,815:INFO:Test label class: 0

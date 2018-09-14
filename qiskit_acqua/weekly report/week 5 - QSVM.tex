@@ -1,0 +1,30 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\usepackage{physics}
+\usepackage[margin=1.2in]{geometry}
+\begin{document}
+\begin{center}
+\textbf{Week 5 Report}
+\end{center}
+
+In the past week, I haven't been able to progress much in the project, mostly because I haven't organize time efficiently and I haven't fully understand quantum computing algorithms. \\
+
+At first, I was trying to replicate the \href{https://github.com/JinlongHuang/quantum-SVM/blob/master/quantum_circuit.ipynb}{following circuit for quantum support vector machine} with IBM Q. However, at some points, I don't understand what is going on in circuit, in particular, the matrix inversion part which involves the quantum phase estimation algorithm. Additionally, from the previous presentation, I also felt that I haven't yet fully understood the quantum algorithm for inner product. So I decided to take a few steps back and tried to understand the detail steps of quantum support vector machine algorithms. \\
+
+I spent time going over video lectures 38 - 42 by professor Vazirani from UC Berkeley. These videos cover Quantum Fourier Transform, which plays the main role in quantum phase estimation algorithm. Even now, after watching the videos several times, I still haven't yet understood the intuition behind it. \\
+
+Coming back the quantum algorithm for inner product's intuition problem, I don't know if it is clear to me what is the intuition for quantum algorithm for inner product. The \href{https://arxiv.org/abs/1307.0471}{Quantum Support Vector Machine} paper refers quantum algorithm for inner product from \href{https://arxiv.org/abs/1307.0411}{Quantum Algorithms for Supervised and Unsupervised Machine Learning}, page 3 in particular. From my own understanding, the reason for computing  $\vec{x_{i}}^T \vec{x_{j}}$ as $\frac{Z - {\vert \vec{x_{i}} - \vec{x_{j}} \vert}^{2}}{2}$ where $Z = {\vert \vec{x_{i}} \vert}^{2} + {\vert \vec{x_{j}} \vert}^{2}$ is because Z and $ {\vert \vec{x_{i}} - \vec{x_{j}} \vert}^{2}$ can be computed using quantum algorithm in $O(\log N)$ run time. In general, from my own understanding, the intuition is that: when the data is stored in qRAM, it can be accessed in $O(\log N)$ steps. Once it is in quantum form, the data can be post - processed by various quantum algorithms (quantum Fourier transform, matrix inversion, etc.), which take time $O(poly(\log N))$. \\
+
+Other than that, I spent time thinking and searching what to next, which is bad since I haven't finished the work at hand. I have been stuck in a bottleneck, partly because I haven't been able to balance the work and partly because I haven't yet fully understood the intuition behind quantum algorithms like quantum phase estimation algorithms, quantum fourier transform, and quantum inner product algorithm. I'm working on structuring everything down, making everything more concrete and intuitive for my presentation next friday. I will try my best to be able to represent quantum implementation of QSVM on IBM Q next friday. 
+
+
+
+\end{document}

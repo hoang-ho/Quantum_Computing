@@ -1,0 +1,32 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\usepackage{physics}
+\usepackage[margin=1.2in]{geometry}
+
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+\begin{center}
+\textbf{\Large Week 7 Report} \\
+\end{center}
+
+I've been spending the past few days rereading \href{https://arxiv.org/abs/1307.0471}{Quantum Support Vector Machine}. The goal is to fully understand the algorithm so that I can implement it on IBM QX. Quantum Algorithm for SVM is a very complex one and hard to understand because it is built up on so many other quantum algorithms. The paper, \href{https://arxiv.org/abs/1307.0471}{Quantum Support Vector Machine}, just merely describes the general ideas for the algorithm and doesn't describe in details how to build implement complex operations with quantum gates. \\
+
+In the past few weeks, I have been looking at QSVM implementation on IBM QX. I found out that IBM QX has its own built-in function for QSVM, so users can directly call the built-in function from python and use it for SVM classification problem. But one thing to keep in mind is the dataset format for the input data. The built-in QSVM function only takes in classical dataset with certain format, more detail can be found \href{https://github.com/Qiskit/qiskit-acqua-tutorials/blob/master/artificial_intelligence/datasets.py}{here}. So, if we want to use other datasets other than the default datasets, we need to write a function to reformat it. I have played around with built-in function with the default datasets. Attached in emails are some python notebooks that I have played around. \\
+
+I have attempted to look at the code for quantum algorithms for SVM in QISKIT-acqua github. Basically, we call the built-in python function for QSVM, it calls the following \href{https://github.com/Qiskit/qiskit-acqua/blob/master/qiskit_acqua/algomethods.py}{run algorithm function}. After many calls to many other files, algorithm.run will end up at the \href{https://github.com/Qiskit/qiskit-acqua/blob/master/qiskit_acqua/classicalsvm/svm_rbf_kernel.py}{Quantum Radial basis function kernel} if we use RBF kernel for SVM, or it will end up at \href{https://github.com/Qiskit/qiskit-acqua/blob/master/qiskit_acqua/svm/svm_qkernel.py}{Quantum enhanced kernel}. After reading the code at the mentioned file, I find out that, the built-in python function for QSVM use quantum algorithm to implement the kernel matrix, which can be found \href{https://github.com/Qiskit/qiskit-acqua/blob/master/qiskit_acqua/svm/quantum_circuit_kernel.py}{here}. Other than that, the built-in function use cvxopt to find solution for the quadratic programming problem to solve for parameters $\alpha$ and b. Hence, this built-in function doesn't utilize all the quantum algorithms mentioned in the paper. \\
+
+Meanwhile, \href{https://github.com/JinlongHuang/quantum-SVM/blob/master/quantum_circuit.ipynb}{the following implementation of QSVM on QuTip} involves a lot of complex gates, e.g. SWAP gate, SNOT gate, ..., and those gates again can be approximated by IBM Q gates. But the circuit would still be very complex, and it is not clear to me yet how to implement some certain gates using basic gates provided by IBM Q. \\
+
+My quest to implement SVM circuit on IBM QX is stuck right now, because to implement the full algorithm on IBM QX is a complex problem that I am not yet able to fully comprehend. Meanwhile,  I found the following papers, \href{https://arxiv.org/pdf/1703.10793.pdf}{Implementing a distance - based classifier with a quantum interference circuit} and \href{http://file.scirp.org/pdf/JQIS_2018030614075233.pdf}{Empirial Analysis of a Quantum Classifier implemented on a IBM's 5Q Quantum Computer}. Those papers attempt to simulate similar problems to QSVM. So I decide to have a look at those for the upcoming weeks. 
+
+\end{document}

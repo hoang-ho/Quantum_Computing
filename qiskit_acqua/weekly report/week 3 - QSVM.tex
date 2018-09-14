@@ -1,0 +1,290 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\usepackage{physics}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx}
+\graphicspath{{c:/Users/Hoang/Documents/document/computer science/quantum machine learning/weekly report/}}
+
+\def\infinity{\rotatebox{90}{8}}
+
+\newcommand\myeq{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily QPE}}}{=}}}
+
+\begin{document}
+\begin{center}
+\textbf{\Large Report Week 3}
+\end{center}
+
+Last week, I studied how Quantum Support Vector Machine is implemented through the paper \href{https://arxiv.org/abs/1307.0471?context=cs}{Quantum Support Vector Machine}.  The paper showed that a quantum support vector machine can be implemented with $O(\log MN)$ run time in both training and classification stages.  This report records what I did in week 3 and some of week 4. \\
+
+\textbf{\large Classical SVM} \\
+
+Given M data points \{$x^{(i)}, y^{(i)}$\} where $x^{(i)} \in \mathbb{R}^{N}$ is the $i^{th}$ input and $y^{(i)} \in \mathbb{R}$ is the $i^{th}$ output. A classifier is constructed as follow:
+\begin{equation}
+\label{eq:t}
+\begin{gathered}
+w^{T} \phi(x^{(i)}) + b \geq 1 \quad \text{if } y^{(i)} = 1 \\
+w^{T} \phi(x^{(i)}) + b \leq -1 \quad \text{if } y^{(i)} = -1  \quad \text{for i = 1,..,M} \\
+\text{or, equivalently} \\
+y^{(i)}*(w^{T} \phi(x^{(i)}) + b) \geq 1 \quad \text{for i = 1,..,M} 
+\end{gathered}
+\end{equation}
+$\phi(.)$ is a feature mapping that maps input space into a higher dimension. Add regularization term to make the algorithm less sensitive to outliers: 
+\begin{equation}
+\label{eq:t}
+\begin{gathered}
+y^{(i)}*(w^{T} \phi(x^{(i)}) + b) \geq 1 - \xi_{i}  \\
+\xi_{i} \geq 0 \quad \text{for i = 1,..,M}
+\end{gathered}
+\end{equation}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale = 1.0]{"svm".png}
+    \caption{Support Vector Machine Hyperplane}
+    \label{fig: SVM}
+\end{figure}
+
+SVM finds the hyperplane that maximizes the geometric margin of the dataset, where geometric margin of the dataset is defined as the minimum Euclidean distance between all data points to the hyperplane. 
+
+\textbf{Optimization problem}
+\begin{equation}
+\begin{split}
+\max_{\gamma, w,b} & \quad \gamma \\
+&\textrm{s.t.} \quad y^{(i)}(w^T \phi (x^{(i)}) * b) \geq \gamma \quad \textrm{for i = 1, ..., M} \\
+&\quad \quad \Vert w \Vert = 1
+\end{split}
+\end{equation}
+
+But $\Vert w \Vert$ is a non-convex function. So we transform the problem into a nicer one:
+\begin{equation}
+\begin{split}
+\max_{\gamma, w,b} & \quad \frac{\hat{\gamma}}{\Vert w \Vert} \\
+&\textrm{s.t.} \quad y^{(i)}(w^T \phi(x^{(i)}) * b) \geq \hat{\gamma} \quad \textrm{for i = 1, ..., M} 
+\end{split}
+\end{equation}
+
+$\hat{\gamma}$ is the functional margin, defined as $\hat{\gamma}^{(i)} = y^{(i)}(w^T \phi (x^{(i)}) * b)$, and $\hat{\gamma} = \min_{i = 1,..., M} \hat{\gamma}^{(i)}$. When $\Vert w \Vert$ equals 1, functional margin equals geometric margin.  However, $\frac{\hat{\gamma}}{\Vert w \Vert}$ is a non-convex objective function. To get rid of this, we introduce a scaling constraint that the function margin of w, b with respect to the training set must be 1. 
+
+$$\hat{\gamma} = 1$$
+
+So now, maximizing  $\frac{\hat{\gamma}}{\Vert w \Vert} = \frac{1}{\Vert w \Vert}$ is the same as minimizing ${\Vert w \Vert}^{2}$
+\begin{equation}
+\begin{split}
+\min_{\gamma, w, b} & \quad \frac{1}{2} {\Vert w \Vert}^{2} \\
+&\quad \textrm{s.t.}  \quad y^{(i)}(w^T \phi (x^{(i)}) * b) \geq 1 \quad \textrm{for i = 1, ..., M}
+\end{split}
+\end{equation}
+
+Optimization problem with regularization term:
+\begin{equation}
+\begin{split}
+\min_{w, b, \xi} & \quad \frac{1}{2} {\Vert w \Vert}^{2} + C \sum_{i= 1}^{m} \xi_{i}\\
+&\quad \textrm{s.t.}  \quad y^{(i)}(w^T \phi (x^{(i)}) * b) \geq (1 - \xi_{i}) \quad \textrm{for i = 1, ..., M}\\
+&\quad \quad {\xi}_{i} \geq 0 \quad \textrm{i = 1,...,m}
+\end{split}
+\end{equation}
+
+Least Squares SVM optimization problem can be stated as: 
+
+\begin{equation}
+\begin{split}
+\min_{w, b, \xi} & \quad \frac{1}{2} w^T w + \frac{1}{2} * \zeta \sum_{i= 1}^{m} {\xi_{i}}^{2}\\
+&\quad \textrm{s.t.}  \quad y^{(i)}(w^T \phi (x^{(i)}) +  b) = (1 - \xi_{i}) \quad \textrm{for i = 1, ..., M}\\
+\end{split}
+\end{equation}
+
+We solve for the optimization problem by Lagrange Duality. The Lagrangian for the optimization problem can be stated as:
+
+\begin{equation}
+\begin{split}
+\mathcal{L}_{1}(w , b, \xi_{i}, \alpha_{i}) &= \frac{1}{2} w^T w + \frac{1}{2} * \zeta * \sum_{i= 1}^{M} {\xi_{i}}^{2} \\
+&- \sum_{i=1}^{M} \alpha_{i} \{y^{(i)}(w^{T} \phi(x^{(i)}) + b) -1 + \xi_{i} \} 
+\end{split}
+\end{equation}
+
+KKT conditions for optimality are:
+
+\begin{equation}
+\label{eq:t}
+\begin{gathered}
+\frac{\partial}{\partial w_{i}} \mathcal{L}_{1} = 0 \longrightarrow w = \sum_{i=1}^{M} \alpha_{i} \phi(x^{(i)}) \\
+\frac{\partial}{\partial b} \mathcal{L}_{1} = 0 \longrightarrow \sum_{i=1}^{M} \alpha_{i} = 0 \\
+\frac{\partial}{\partial \xi_{i}} \mathcal{L}_{1} = 0 \longrightarrow \alpha_{i} = \zeta * \xi_{i} \quad \text{i = 1,..., m} \\
+\frac{\partial}{\partial \alpha_{i}} \mathcal{L}_{1} = 0 \longrightarrow y^{(i)} = (w^{T} \phi(x^{(i)}) + b) + \xi_{i}
+\end{gathered}
+\end{equation}
+
+We obtain the following matrix:
+
+\[
+\begin{bmatrix}
+\vec{1} & 0 & 0 & -Z^T \\ 
+0 & 0 & 0 & \vec{1} \\
+0 & 0 & \zeta*\vec{1} & -\vec{1} \\
+Z & \vec{1} & \vec{1} & 0  
+\end{bmatrix}
+* 
+\begin{bmatrix}
+w \\ b \\ \xi \\ \alpha
+\end{bmatrix}
+= 
+\begin{bmatrix}
+0 \\ 0 \\ 0 \\ y
+\end{bmatrix}
+\]
+where: \\
+Z = $(\phi(x^{(1)}), \phi(x^{(2)}), \dots, \phi(x^{(m}))$ \\
+$\alpha = (\alpha_{1}, \dots, \alpha_{m})$ \\
+$\xi = (\xi_{1}, \dots , \xi_{m}) \quad \text{and} \quad \vec{1} = (1, \dots, 1)$ \\
+$y = (y_{1}, \dots, y_{n})$
+
+By rule of substitution, we get the following: 
+\[
+\begin{bmatrix}
+0 & \vec{1} \\
+\vec{1} & \Omega + \zeta^{-1} * I \\
+\end{bmatrix}
+*
+\begin{bmatrix}
+b \\ \alpha
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\ y
+\end{bmatrix}
+\]
+where:
+$\Omega_{ij} = {\phi(x^{(i)})}^{T}\phi(x^{(j)}), \quad \text{and }  \Omega \in \mathbb{R}^{MxM}$ \\
+
+The problem can now be solved by solving the above linear equation to find for b and $\alpha$. Then we can use the fact that $w = \sum_{i=1}^{M} \alpha_{i} \phi(x^{(i)})$ to find for w. Once we find the optimal w and b, we have already solved for the optimization problem.  \\
+
+\textbf{Computational Cost for Classical SVM} \\
+
+Solving for dual problem involves evaluateing $\frac{M*(M-1)}{2}$ dot products for the kernel matrix, and finding for optimal $\alpha$ takes $O(M^{3})$ in the non-sparse case. As each dot product takes time $O(N)$ to evaluate, the classical support vector algorithm takes time $O(\log \frac{1}{\epsilon} M^{2} (N+M))$ with accuracy $\epsilon$ \\
+
+\textbf{\large Quantum SVM} \\
+
+Speed up of QSVM comes from two sources: (1) fast quantum evaluation of inner products (2) fast matrix inversion algorithm.\\
+
+\textbf{Fast quantum evaluation of inner product}: Quantum algorithm can do dot product of two vectors in $O(\frac{1}{\epsilon} \log N)$ time. The idea is: for two vectors $\vec{x_{i}}$ and $\vec{x_{j}}$, then $\vec{x_{i}}^T \vec{x_{j}} = \frac{Z - {\vert \vec{x_{i}} - \vec{x_{j}} \vert}^{2}}{2}$ where $Z = {\vert \vec{x_{i}} \vert}^{2} + {\vert \vec{x_{j}} \vert}^{2}$ \\
+
+\textbf{Fast Matrix Inversion Algorithm} \\
+
+Now reconsider:
+\[
+F
+*
+\begin{bmatrix}
+b \\ \alpha
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 & \vec{1} \\
+\vec{1} & \vec{K} + \zeta^{-1} * I \\
+\end{bmatrix}
+*
+\begin{bmatrix}
+b \\ \alpha
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\ y
+\end{bmatrix}
+\]
+For simplicitity, let's just now assume that $\vec{K} = \vec{x_{i}}^T * \vec{x_{j}}$. Now our goal is to invert F. Consider, $\hat{F} = \frac{F}{tr(F)}$, then $\hat{F}$ can be written as:
+$$\hat{F} = \frac{(J + K + \zeta^{-1} * I)}{tr(F)}$$ \\
+where: 
+\[
+J = 
+\begin{bmatrix}
+0 & \vec{1} \\
+\vec{1} & 0
+\end{bmatrix}
+\]
+
+Our goal is to invert the matrix F and multiply $F^{-1}$ with $(0, y)^{T}$ to find for b and $\alpha$. In order to find for inverse of F, we need to compute $e^{-i\hat{F} \Delta t}$ so that if we have $\ket{b}$, some quantum state, we can apply \href{https://qiskit.github.io/ibmqx-user-guides/full-user-guide/004-Quantum_Algorithms/100-Quantum_Phase_Estimation.html}{Quantum Phase Estimation Algorithm} on $e^{-i\hat{F} \Delta t} \ket{b} \ket{0}$ to obtain $\hat{F}^{-1} \ket{b}$. The general idea is as follow:
+
+Suppose we want to invert a square Hermitian matrix A. For some quantum state, $\ket{b} = \sum_{j} \beta_{j} \psi_{j}$, where $\psi_{j}$ is the eigenvector of A. Let $\ket{0}$ be another register and $\rho$ is a momentum operator, then:
+
+$$e^{-iA \otimes \rho t} \ket{b} \ket{0} \myeq \sum_{j} \beta_{j} \ket{\psi}_{j}  \ket{\lambda_{j} t}$$
+
+We can get the phase operator $e^{i \Delta t {\lambda_{j}}^{-1}}$ and multiply it with the above result, then we get $\sum_{j} \beta_{j} e^{i \Delta t {\lambda_{j}}^{-1}} \ket{\psi}_{j}  \ket{\lambda_{j} t}$. Apply the inverse Quantum Phase Estimation on this we get $\sum_{j} \beta_{j} e^{i \Delta t {\lambda_{j}}^{-1}} \ket{\psi}_{j}  \ket{0} = e ^{i \Delta t A^{-1}} \ket{b} \ket{0}$. For more explaination
+
+Back to our problem, so now we need to compute $e^{-i\hat{F} \Delta t}$. By  \href{https://en.wikipedia.org/wiki/Lie_product_formula}{Lie Product}, we have that: 
+
+$$e^{-i\hat{F} \Delta t} = e^{{-i I \Delta t}/tr(F)} * e^{{-i J  \Delta t}/tr(F)} * e^{{-i K \Delta t}/tr(F)}$$
+
+``Computing $ e^{-i I \Delta t}$ and $ e^{-i J  \Delta t}$ is trival''. The hard part is computing $e^{-i K \Delta t}$. \\
+
+Starting from the initial state $\frac{1}{\sqrt{M}} \sum_{i = 1}^{M} \ket{i}$, the training oracles are used to prepare the state $\ket{\chi} = \frac{1}{\sqrt N_{x}} \sum_{j = 1}^{N} \vert \vec{x_{i}} \vert \ket{i} \ket{\vec{x_{i}}}$, with $N_{x} = \sum_{i=1}^{M} {\vert \vec{x_{i}} \vert}^{2}$ in $O(\log MN)$ run time. The Kernel matrix K is the density matrix reduced to a constant factor tr(K): 
+$\hat{K} = \frac{K}{tr(K)} = tr_{2}\{\ket{\chi} \bra{\chi}\} = \frac{1}{K} \sum_{i,j = 1}^{M} \bra{x_{i}}\ket{x_{j}} \vert x_{i} \vert \vert x_{j} \vert \ket{i}\bra{j}$
+
+We can now obtain $e^{-i \hat{K} \Delta t}$ by: (\href{https://arxiv.org/abs/1307.0401}{Density Matrix Exponentiation})
+
+\begin{equation}
+\begin{split}
+e^{-i \mathcal{L}_{\hat{K}} \Delta t} &\approx tr_{1}(e^{-i S \Delta t} \hat{K} \otimes \rho e^{i S \Delta t}) \\
+&= \rho - i \Delta t[\hat{K}, \rho]+ O(\Delta t^{2}) = e^{-i \hat{K} \Delta t} \rho e^{i \hat{K} \Delta t} 
+\end{split}
+\end{equation}
+
+where: $\mathcal{L}_{\hat{K}}(\rho) = [\hat{K}, \rho]$, super-operator;  $\Delta t = \frac{t_{o}}{T}$ ($t_{o}$ is the total evolution time determining the error of the phase estimation, and T is the number of time steps in the phase estimation; 
+$S = \sum_{m,n = 1}^{M} \ket{m}\bra{n} \otimes \ket{n} \bra{m}$ is the swap matrix of dimension $M^{2}$ x $M^{2}$. 
+ 
+Once $F^{-1}$ is obtained, we can use it to find for b and  $\alpha$. The quantum state is first initialized into 
+
+$$\ket{0, \vec{y}} = \frac{1}{\sqrt{N_{0,y}}} (\ket{0} + \sum_{i= 1}^{M} y_{i} \ket{i} )$$ \\
+
+where $N_{0,y} = 1 + \sum_{i} {y_{i}}^2$ \\
+
+Then, by performing the matrix inversion of F, the quantum state is transferred to: 
+
+$$\ket{b, \vec{\alpha}} = \frac{1}{\sqrt{N_{b,\alpha}}} (b\ket{0} + \sum_{i=1}^{M} {\alpha}_{i} \ket{i}) \text{, where } N_{b, \alpha} = b^{2} + \sum_{i = 1}^{M} {\alpha_{i}}^{2}$$ \\
+
+\textbf{Computational Cost of QSVM}
+
+\begin{itemize}
+\item Preparation of the Kernel matrix: $O(\log MN)$
+\item Computing $e^{-i K \Delta t}$: $O(\frac{{t_{o}}^{2}}{\epsilon} \log MN)$ (because $\epsilon = O(T \Delta t = O({t_{o}}^{2} / T) \textrm{ so the run time is }  T = O(\frac{{t_{o}}^{2}}{\epsilon}))$
+\item Inverting $\hat{F}$ costs: $O(\log N)$
+\item Total cost: $O(\log MN)$
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{QSVM}
+Patrick Rebentrost, Masoud Mohseni, and Seth Lloyd. 
+\href{https://arxiv.org/abs/1307.0471?context=cs}{\textit{Quantum Support Vector Machine}}
+
+\bibitem{Quantum PCA}
+Seth Lloyd, Masoud Mohseni, and Patrick Rebentrost.
+\href{https://arxiv.org/abs/1307.0401}{\textit{Quantum Principal Component Analysis}}
+
+\bibitem{LinearEquation}
+Video on Solving for Linear Equations. 
+\href{https://www.youtube.com/watch?v=KtIPAPyaPOg}{Quantum Algorithm for Solving Linear Equation}
+
+\bibitem{InnerProduct}
+Seth Lloyd, Massoud Mohseni, and Patrick Rebentrost. 
+\href{https://arxiv.org/abs/1307.0411}{Quantum Algorithms for Supervised and Unsupervised Machine Learning}
+
+\bibitem{Optimization}
+Convex Optimization Notes. 
+\href{http://cs229.stanford.edu/section/cs229-cvxopt.pdf}{Notes 1},
+\href{http://cs229.stanford.edu/section/cs229-cvxopt2.pdf}{Notes 2},
+\href{http://www2.imm.dtu.dk/courses/02711/lecture3.pdf}{More on KKT conditions}. 
+
+
+
+\end{thebibliography}
+ 
+
+
+\end{document}

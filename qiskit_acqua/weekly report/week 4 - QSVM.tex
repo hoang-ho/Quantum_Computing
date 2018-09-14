@@ -1,0 +1,202 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+\usepackage{physics}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx}
+\graphicspath{{c:/Users/Hoang/Documents/document/computer science/quantum machine learning/weekly report/}}
+
+\def\infinity{\rotatebox{90}{8}}
+
+\newcommand\myeq{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily QPE}}}{=}}}
+
+\begin{document}
+\begin{center}
+\textbf{\Large Report Week 4}
+\end{center}
+
+In week 3, I studied how Quantum Support Vector Machine is implemented through the paper \href{https://arxiv.org/abs/1307.0471?context=cs}{Quantum Support Vector Machine}.  The paper showed that a quantum support vector machine can be implemented with $O(\log MN)$ run time in both training and classification stages.  In week 3 report, I covered how to get the hyperparameters b and $\alpha$ to construct the hyperplane. In this week report, I will cover classification steps of QSVM. \\
+
+\textbf{\large QSVM Classification} \\
+
+Given a test example $\vec{x_{o}}$, SVM classifies $\vec{x}$ as:
+
+$$y(\vec{x_{o}}) = sign(\vec{w} * \vec{x} + b)$$
+
+Recall that when solving for KKT conditions we get the following result:
+
+$$w = \sum_{i=1}^{M} \alpha_{i} \vec{x_{i}}$$
+
+Hence, 
+
+$$y(\vec{x_{o}}) = sign(\sum_{i= 1}^{M} \alpha_{i} (\vec{x_{i}} * \vec{x_{o}}) + b)$$
+
+Let: 
+
+$$\ket{0, \vec{y}} = \frac{1}{\sqrt{N_{0,y}}} (\ket{0} + \sum_{i=1}^{M} y_{i} \ket{i} \text{, where } N_{0,y} = 1 + \sum_{i=1}^{M} {\vert y_{i} \vert}^{2}$$
+
+Apply $F^{-1}$ on this we obtain: 
+
+$$\ket{b, \vec{\alpha}} = \frac{1}{\sqrt{N_{b,\alpha}}} (b\ket{0} + \sum_{i=1}^{M} {\alpha}_{i} \ket{i}) \text{, where } N_{b, \alpha} = b^{2} + \sum_{i = 1}^{M} {\alpha_{i}}^{2}$$
+
+Now, let's start constructing training data state and query state for classification. From the above state, construct the training data state:
+
+$$\ket{\widetilde{u}} = \frac{1}{\sqrt{N_{\widetilde{u}}}} (b \ket{0} \ket{0} + \sum_{i=1}^{M} \alpha_{i} \vert \vec{x_{i}} \vert \ket{k} \ket{\vec{x_{i}}})$$
+
+with $N_{\widetilde{u}} = b^{2} + \sum_{i=1}^{M} {\alpha_{i}}^{2} {\vert \vec{x_{i}} \vert}^{2}$
+
+In addition, we construct the query state: 
+
+$$\ket{\widetilde{x}} = \frac{1}{\sqrt{N_{\widetilde{x}}}} (\ket{0} \ket{0} + \sum_{i=1}^{M} \vert \vec{x} \vert \ket{k} \ket{\vec{x}})$$
+
+with $N_{\widetilde{x}} = M {\vert \vec{x} \vert}^{2} + 1$. We have that:
+
+$$\bra{\widetilde{u}}\ket{\widetilde{x}} = \frac{1}{\sqrt{N_{\widetilde{u}} N_{\widetilde{x}}}} (b + \sum_{i=1}^{M} \alpha_{i} \vert \vec{x_{i}} \vert \vert \vec{x} \vert \bra{\vec{x_{i}}}\ket{\vec{x}})$$
+
+Hence, we would have that $y(\vec{x}) = sign(\bra{\widetilde{u}}\ket{\widetilde{x}})$. If $\bra{\widetilde{u}}\ket{\widetilde{x}} > 0$, then $\ket{\vec{x}}$ would be classified as +1, otherwise, -1. The inner product, $\bra{\widetilde{u}}\ket{\widetilde{x}}$ can be computed in $O(\log NM)$ run time.
+
+\medbreak
+
+\textbf{\large Swap Test} \\
+
+One of the most important immediate step in computing inner product as described in \cite{InnerProduct} involves the swap test: 
+
+$$\ket{0} \ket{\psi} \ket{\varphi} \xrightarrow[]{\text{C-SWAP}} \ket{0} \ket{\psi} \ket{\varphi}$$
+$$\ket{1} \ket{\psi} \ket{\varphi} \xrightarrow[]{\text{C-SWAP}} \ket{1} \ket{\varphi} \ket{\psi}$$
+
+Swap Test is most commonly used to test for equality of two unknown quantum states, i.e., estimates their inner product. To perform a swap test on $\ket{\psi} \text{and } \ket{\varphi}$ means to do the following: 
+
+\begin{enumerate}
+\item Initialize the state $\ket{0}\ket{\psi}\ket{\varphi}$
+\item Apply the Hadamard gate to the first register
+\item Apply C-SWAP to the three registers
+\item Apply a Hadamard gate to the first register
+\item Measure the first register
+\item ``Accept'' if the outcome is $\ket{0}$ and ``reject'' if the outcome is $\ket{1}$
+
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale = 0.5]{"Quantum-circuit-of-a-swap-test".png}
+    \caption{Quantum Circuit of a Swap Test}
+    \label{fig: SVM}
+\end{figure}
+
+The evolution of the system is as follow:
+
+\begin{equation}
+\begin{split}
+\ket{0, \varphi, \psi} &\rightarrow \frac{1}{\sqrt{2}} (\ket{0, \varphi, \psi} + \ket{1, \varphi, \psi}) \rightarrow \frac{1}{\sqrt{2}} (\ket{0, \varphi, \psi} + \ket{1, \psi, \varphi}) \\
+&\rightarrow \frac{1}{2} (\ket{0, \varphi, \psi} + \ket{1, \varphi, \psi} + \ket{0, \psi, \varphi} - \ket{1, \psi, \varphi}) \\
+&= \ket{0} \otimes \frac{1}{2} (\ket{\varphi, \psi} + \ket{\psi, \varphi}) + \ket{1} \otimes \frac{1}{2} (\ket{\varphi, \psi} - \ket{\psi, \varphi})
+\end{split}
+\end{equation}
+Hence, the probability of observing $\ket{0}$  is: 
+
+\begin{equation}
+\begin{split}
+Pr(\text{observing } \ket{0}) &=  \frac{1}{4} (\bra{\varphi, \psi} + \bra{\psi, \varphi})(\ket{\varphi, \psi} + \ket{\psi, \varphi}) \\
+&= \frac{1}{4}(2 + \bra{\psi, \varphi}\ket{\varphi, \psi} + \bra{\varphi, \psi}\ket{\psi, \varphi}) \\
+&= \frac{1}{2} + \frac{1}{2} {\vert \bra{\psi}\ket{\varphi} \vert}^{2}
+\end{split}
+\end{equation}
+
+In the case of our classification problem, we can construct two states: 
+
+$$\ket{\psi} = \frac{1}{\sqrt{2}} (\ket{0}\ket{\widetilde{u}} + \ket{1}\ket{\widetilde{x}})$$
+
+$$\ket{\phi} = \frac{1}{\sqrt{2}}(\ket{0} - \ket{1})$$
+
+Performing a swap test on $\ket{\psi}$ and $\ket{\phi}$ reveals 
+
+$${\vert \bra{\psi}\ket{\phi} \vert}^{2} = 2*Pr(\text{observing } \ket{0}) - 1$$
+
+And we also have that 
+
+$${\vert \bra{\psi}\ket{\phi} \vert}^{2} = \frac{1}{2} (1 - \bra{\widetilde{u}}\ket{\widetilde{x}})$$ \\
+
+
+\textbf{\large Solving for Linear Equation} \\
+
+Classically, the problem of linear equations is to find an unknown vector $\vec{x}$ in the following linear equation: $A\vec{x} = \vec{b}$ for a known $N \times N$ matrix A, and a known N-dimensional vector $\vec{b}$. The quantum version of the problem can be written as $A\ket{x} = b$, where A is a Hermitian. If A is not Hermitian, one can solve 
+
+\[
+\begin{bmatrix}
+0 & A\\
+A^{T} & 0
+\end{bmatrix}
+*
+\begin{bmatrix}
+0 \\ \vec{x}
+\end{bmatrix}
+=
+\begin{bmatrix} 
+\vec{b} \\ 0
+\end{bmatrix}
+\]
+
+instead of the original equation, so the algorithm is general for any invertible matrices. 
+
+The matrix A and the states $\ket{x}$ and $\ket{b}$ can be expanded in terms of the eigenstates of A as 
+
+$$A = \sum_{j=1}^{N} \lambda_{j} \ket{u_{j}} \ket{u_{j}} \quad
+A^{-1} = \sum_{j=1}^{N} {\lambda_{j}}^{-1} \ket{u_{j}} \bra{u_{j}}$$
+
+$$\ket{b} = \sum_{j=1}^{N} \beta_{j} \ket{u_{j}} \quad \text{where} \quad \beta_{j} = \bra{u_{j}}\ket{b} \quad \text{, and}$$
+
+$$\ket{x} = A^{-1} \ket{b} = (\sum_{i=1}^{N} {\lambda_{k}}^{-1} \ket{u_{k}} \bra{u_{k}} ) (\sum_{j = 1}^{N} \beta_{j} \ket{u_{j}} ) = \sum_{j = 1}^{N} \frac{\beta_{j}}{\lambda_{j}} \ket{u_{j}}$$
+
+where $\lambda_{j}$ and $\ket{u_{j}}$ are the eigenvalues and eigenstates of A. Generally, the quantum algorithms for solving the linear equation can be described as follows.
+\begin{enumerate}
+\item Prepare n register qubits in $\ket{0}^{\otimes n}$ state with the vector qubit $\ket{b}$: 
+
+$$\ket{b}\ket{0}^{\otimes n} = \sum_{j=1}^{N} \beta_{j} \ket{u_{j}} \ket{0}^{\otimes n}$$
+
+\item Performing quantum phase estimation on the above state, i.e. apply $e^{-iAt} for varying times$, we obtain the following state $\sum_{j=1}^{N} \beta_{j} \ket{u_{j}}\ket{\lambda_{j}}$
+
+\item Introduce an ancilla qubit $\ket{0}$, and perform the $R_{Y}$ rotation on the ancilla, where $R_{y} = e^{\frac{-i \theta}{2Y}}$. The total rotation angle will be determined by the eigenvalue stored in the register qubit such that
+
+$$\sum_{j=1}^{N} \beta_{j} \ket{u_{j}} \ket{\lambda_{j}} \ket{0} \rightarrow \sum_{j=1}^{N} \beta_{j} \ket{u_{j}} \ket{\lambda_{j}} (\sqrt{1 - \frac{C^{2}}{\lambda_{j}^{2}}} \ket{0} + \frac{C}{\lambda_{j}} \ket{1})$$
+
+\item Perform inverse phase estimation to disentangle the eigenvalue registers:
+
+$$\sum_{j=1}^{N} \beta_{j} \ket{u_{j}} \ket{\lambda_{j}} (\sqrt{1 - \frac{C^{2}}{\lambda_{j}^{2}}} \ket{0} + \frac{C}{\lambda_{j}} \ket{1})$$
+
+\item Postselect for the ancillary qubit of $\ket{1}$: 
+
+$$\sum_{j=1}^{N} \beta_{j} \ket{u_{j}} \frac{C}{\lambda_{j}} \ket{1}$$
+
+\end{enumerate}
+
+\textbf{Others} \\
+
+I looked at the code from \href{https://github.com/JinlongHuang/quantum-SVM}, but after Keita's presentation last Wednesday, I believed QISKIT is a better tool. I haven't had the chance to work on Qiskit until early this week. Right now, I'm working on the code for QSVM with QISKIT \\
+
+\textbf{Up Coming} \\
+
+Next week, I will finish the code for QSVM and start working on \href{http://axon.cs.byu.edu/Dan/papers/ezhov2000fdisis.pdf}{Quantum Neural Networks}, and \href{https://arxiv.org/pdf/1412.3489.pdf}{Quantum Deep Learning}. 
+
+
+\medbreak
+
+\begin{thebibliography}{9}
+\bibitem{QSVM}
+Patrick Rebentrost, Masoud Mohseni, and Seth Lloyd. 
+\href{https://arxiv.org/abs/1307.0471?context=cs}{\textit{Quantum Support Vector Machine}}
+
+\bibitem{InnerProduct}
+Seth Lloyd, Massoud Mohseni, and Patrick Rebentrost. 
+\href{https://arxiv.org/abs/1307.0411}{Quantum Algorithms for Supervised and Unsupervised Machine Learning}
+
+
+\end{thebibliography}
+
+\end{document}
